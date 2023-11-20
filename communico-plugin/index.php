@@ -30,11 +30,11 @@ class CommunicoDataPuller {
     public function addButtonToEditor() {
         add_filter("mce_external_plugins", array($this, "addButtonPlugin"));
         add_filter('mce_buttons', array($this, 'registerButton'));
-        //wp_enqueue_script('communicoButton', plugins_url('/js/communico-button.js?v=32345678', __FILE__), array('jquery'), '', true);
+      
     }
 
     public function registerButton($buttons) {
-        //array_push($buttons, "communicoButton");
+        
         $buttons[] = 'communicoButton';
         return $buttons;
     }
@@ -142,63 +142,18 @@ class CommunicoDataPuller {
             'term' => ''
         ), $atts);
 
-        //print_r($atts);
-
-        /*
-        $data =
-        '&locationId=' . $atts['locationId'] .
-        '&ages=' . $atts['ages'] .
-        '&types=' . $atts['types'] .
-        '&searchTags=' . $atts['searchTags'] .
-        '&term=' . $atts['term'];
-        */
-
-        //$data = "&locationId=416";
-        //$locationId = $atts['locationId'];
-
         if ($atts['locationid'] ) { $data .= '&locationId=' . $atts['locationid'];}
         if ($atts['ages'] ) { $data .= '&ages=' . $atts['ages'];}
         if ($atts['types'] ) { $data .= '&types=' . $atts['types'];}
         if ($atts['term'] ) { $data .= '&term=' . $atts['term'];}
 
-        /*
-        $data = array(
-            'locationId' => '&locationId=' . $atts['locationId'],
-            'ages' => '&ages=' . $atts['ages'],
-            'types' => '&types=' . $atts['types'],
-            'searchTags' => '&searchTags=' . $atts['searchTags'],
-            'term' => '&term=' . $atts['term']
-        );
-        */
-
-        //print_r($data);
-
         $response = $this->getCommunicoDataFromAPI($data);
-
-        //print("test123123123123123123123");
-        //print_r($response);
 
         // Process the response and generate HTML elements for each event
         if ($response) {
             $responseData = json_decode($response);
-            //print_r($responseData);
-            //print('i trying');
+            
             foreach ($responseData->data->entries as $entry) {
-                //$image = $event->featureImage ? $event->featureImage : $event->eventImage;
-                //$title = $event->title;
-                //$subTitle = $event->subTitle;
-                //$registrationUrl = $event->eventRegistrationUrl;
-
-                //$html .= '<div>';
-                //$html .= '<img src="' . $image . '" alt="Event image">';
-                //$html .= '<h1>' . $title . '</h1>';
-                //$html .= '<h2>' . $subTitle . '</h2>';
-                //$html .= '<p>' . $shortDescription . '</p>';
-                //$html .= '<a href="' . $registrationUrl . '">Register</a>';
-                //$html .= '</div>';
-                //$html .= 'Events were found. URL used: ' . $this->getCommunicoDataUrl($data);
-
-
                     if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
                         $html .= '<div class="book-group-event">';
                              if ($entry->featuredImage != null) {
@@ -297,7 +252,7 @@ class CommunicoDataPuller {
                     endif;
 
             }
-            //print('why i no display stuff');
+            
         }
 
         else {
@@ -314,19 +269,13 @@ class CommunicoDataPuller {
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->access_token
             ),
-            //'param' => $data
+            
         );
-
-        //print_r($url);
-        //print_r($args);
 
         $response = wp_remote_get($url, $args);
 
-        //print_r($response);
-
         if (!is_wp_error($response)) {
             return wp_remote_retrieve_body($response);
-            //return $response;
         }
 
         return null;
