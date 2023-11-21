@@ -257,6 +257,7 @@ class CommunicoDataPuller {
 
         else {
             //$html = 'No events found. URL used: ' . $this->getCommunicoDataUrl($data);
+              $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
         }
 
         return $html;
