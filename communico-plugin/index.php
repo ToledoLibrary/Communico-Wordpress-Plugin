@@ -5,6 +5,8 @@ Plugin Name: Communico Attend Data Puller
 Description: A plugin to pull data from Communico API
 Version: 1.1
 Author: Toledo Lucas County Public Library
+License: GPLv3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 */
 
 class CommunicoDataPuller {
