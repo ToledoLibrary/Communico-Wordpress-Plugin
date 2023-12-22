@@ -236,6 +236,9 @@ class CommunicoDataPuller {
                                         $html .=  $entry->title;
                                     }
                                 }
+                                if ($entry->registration) {
+                                    $html .= ' | Registration required';
+                                 }
                                 $html .= '
                                 </h3>
                                 <h4>
@@ -329,7 +332,7 @@ class CommunicoDataPuller {
 
     private function getCommunicoDataFromAPI($data) {
         $startDate = date('Y-m-d');
-        $url = 'https://api.communico.co/v3/attend/events?status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,featuredImage,eventImage,searchTags&startDate=' . $startDate . $data;
+        $url = 'https://api.communico.co/v3/attend/events?status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,featuredImage,eventImage,searchTags,registration&startDate=' . $startDate . $data;
         $args = array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->access_token
