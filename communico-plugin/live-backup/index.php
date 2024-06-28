@@ -42,7 +42,7 @@ class CommunicoDataPuller {
     }
 
     public function addButtonPlugin($plugin_array) {
-        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=12', __FILE__);
+        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=32203456718', __FILE__);
         return $plugin_array;
     }
 
@@ -142,8 +142,7 @@ class CommunicoDataPuller {
             'locationid' => '',
             'ages' => '',
             'types' => '',
-            'term' => '',
-            'removeText' => ''
+            'term' => ''
         ), $atts);
 
         $i = 0;
@@ -153,7 +152,6 @@ class CommunicoDataPuller {
         if ($atts['ages'] ) { $data .= '&ages=' . $atts['ages'];}
         if ($atts['types'] ) { $data .= '&types=' . $atts['types'];}
         if ($atts['term'] ) { $data .= '&term=' . $atts['term'];}
-        if ($atts['removeText'] ) { $data .= '&removeText=' . $atts['removeText'];}
 
         $response = $this->getCommunicoDataFromAPI($data);
 
@@ -1254,163 +1252,122 @@ class CommunicoDataPuller {
 
         }
 
-// SEARCH FOR TITLE AS TITLE //
+
          if ($atts['formatstyle'] == "shortDescription") {
 
 
             $responseData = json_decode($response);
-            
 
             if (empty($responseData)) {
-               $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-           }
-           else {
+                $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+            }
+            else {
 
-           foreach ($responseData->data->entries as $entry) {
+            foreach ($responseData->data->entries as $entry) {
 
-                   if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
-                       $displayedevents = 1;
-                       $i++;
-                       $modifiedTitle = str_replace($atts['removeText'], '', $entry->title);
-                       $html .= '<div class="book-group-event">';
+                    if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
+                        $displayedevents = 1;
+                        $i++;
 
-                            if ($entry->featuredImage != null) {
-                               
-                               $html .=  '<div class="book-group-event-image" data-image="featuredImage for ' . $atts['removeText'] . $modifiedTitle . '" style="background-image: url(' . $entry->featuredImage . ')"></div>';
-                            }
-                            elseif ($entry->eventImage != null) {
-                          
-                               $html .=  '<div class="book-group-event-image" data-image="eventImage for ' . $atts['removeText'] . $modifiedTitle . '" style="background-image: url(' . $entry->eventImage . ')"></div></a>';
-                            }
-                            //endif;
-                           $html .= '<div class="book-group-event-info">
-                               <h3 class="book-group-event-title">';
 
-                               if ($entry->featuredImage != null || $entry->eventImage != null) {
+                            $html .= '<p>
+                                <h4 class="book-group-event-title" style="margin-bottom:0;">';
 
-                                   $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$modifiedTitle.'</a>';
+                                if ($entry->featuredImage != null || $entry->eventImage != null) {
 
-                                   //$html .= $entry->title;
-                                   //$html .= $entry->subTitle;
-                               }
+                                    $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
 
-                               else {
-                                       if ($entry->title) {
+                                    //$html .= $entry->title;
+                                    //$html .= $entry->subTitle;
+                                }
 
-                                       $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$modifiedTitle.'</a>';
-
-                                       //$html .=  $entry->title;
-                                   }
-                               }
-                               $html .= '
-                               </h3>';
-                               if ($entry->subTitle) {
-
-                                $html .= '<p class="event-info-date" style="margin-top:-.5em;margin-bottom:-.5em;">';
-                                   $html .=  $entry->subTitle;
-                                $html .= '</p>';
-                               
-                               }
-
-                               $html .= '
-                               
-                               <p class="event-info-date" style="font-weight:bold !important;margin-top:1em;">
-                                   ';
-                                   if ($entry->eventStart) {
-                                       $startDate = new DateTime($entry->eventStart);
-                                       $endDate = new DateTime($entry->eventEnd);
-
-                                       $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
-                                       $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
-                                       $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
-                                       $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
-                                       $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
-                                       $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
-                                       $stringtoclean = str_replace(",","", $stringtoclean);
-                                       $stringtoclean = str_replace(":00","", $stringtoclean);
-                                       $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
-                                       $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
-                                       $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
-                                       $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
-                                       $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
-                                       $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
-                                       $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
-                                       $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
-
-                                       $stringtocleancountam = substr_count($stringtoclean, "a.m");
-                                           $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
-
-                                           if ($stringtocleancountam == "2")
-                                           {
-                                               $stringtoclean = str_replace("a.m.","", $stringtoclean);
-                                               $stringtoclean = $stringtoclean . ' a.m.' ;
-                                           }
-
-                                           if ($stringtocleancountpm == "2")
-                                           {
-                                               $stringtoclean = str_replace("p.m.","", $stringtoclean);
-                                               $stringtoclean = $stringtoclean . ' p.m.' ;
-
-                                           }
-
-                                       $html .= $stringtoclean;
-                                   }
-
-                                   if ($entry->locationName) {
-                                       $html .= ' | ' . $entry->locationName;
-                                   }
-                                   $html .= '
-                               </p>
-                               <div>
-                                   <p style="margin-top:-1.25em">
-                                   ';
-                                       $html .=  $entry->shortDescription;
-                                   $html .= '
-                                   </p>
-                               </div>
-                               ';
-                               if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                    $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
-                                    $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
-                                } elseif ($entry->thirdPartyRegistration == "true") {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
-                                    }
                                 else {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
-                               }
-                            } else {
-                                $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
-                            }
-                           $html .= '</div>
-                       </div>
-                   ';   
-                   endif;   
-                   
-                   
-                         
+                                        if ($entry->title) {
 
-           }
+                                        $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
 
-                   if ($displayedevents == 0) {
-                       $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-                   }
-           
-           
+                                        //$html .=  $entry->title;
+                                    }
+                                }
+                                $html .= '
+                                </h4>
 
-           }    
-           //print('why i no display stuff');
+                                ';
+                                if ($entry->featuredImage != null || $entry->eventImage != null) {
 
-       
-      
-       return $html;
+                                    $html .= '<h4>' . $entry->subTitle . '</h4>';
+                                }
+                                $html .= '
+                                <p class="event-info-date" style="margin:0;">
+                                    ';
+                                    if ($entry->eventStart) {
+                                        $startDate = new DateTime($entry->eventStart);
+                                        $endDate = new DateTime($entry->eventEnd);
+
+                                        $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
+                                        $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
+                                        $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
+                                        $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
+                                        $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
+                                        $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
+                                        $stringtoclean = str_replace(",","", $stringtoclean);
+                                        $stringtoclean = str_replace(":00","", $stringtoclean);
+                                        $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
+                                        $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
+                                        $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
+                                        $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
+                                        $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
+                                        $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
+                                        $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
+                                        $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
+
+                                        $stringtocleancountam = substr_count($stringtoclean, "a.m");
+                                            $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
+
+                                            if ($stringtocleancountam == "2")
+                                            {
+                                                $stringtoclean = str_replace("a.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' a.m.' ;
+                                            }
+
+                                            if ($stringtocleancountpm == "2")
+                                            {
+                                                $stringtoclean = str_replace("p.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' p.m.' ;
+
+                                            }
+
+                                        $html .= $stringtoclean;
+                                    }
+
+                                    if ($entry->locationName) {
+                                        $html .= ' | ' . $entry->locationName;
+                                    }
+                                    $html .= '
+                                </p>
+                                <div>
+                                    <p>
+                                    ';
+                                        $html .=  $entry->shortDescription;
+                                    $html .= '
+                                    </p>
+                                </div>
+                                ';
+                            $html .= '</p>';
+                    endif;
+                }
+
+                if ($displayedevents == 0) {
+                    $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+                }
+
+            }
+            //print('why i no display stuff');
 
         }
 
 
-// SEARCH FOR CALENDAR //
+
 
          if ($atts['formatstyle'] == "calendar") {
 
@@ -1474,7 +1431,7 @@ if (empty($responseData)) {
                         $html .= '<div class="book-group-event">';
                         $html .= '<p class="event-info-date"><a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">' . $entry->title . '</a></p>';
                         $html .= '
-                            <p class="event-info-date" style="font-weight:bold !important;">
+                             <p class="event-info-date">
                                     ';
                                     if ($entry->eventStart) {
                                         $startDate = new DateTime($entry->eventStart);
@@ -1582,329 +1539,269 @@ if (empty($responseData)) {
 ';
         }
 
-// SEARCH FOR SUBTITLE //
 
         if ($atts['formatstyle'] == "subtitle") {
 
 
-            
+            $responseData = json_decode($response);
+
+            if (empty($responseData)) {
+                $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+            }
+            else {
+
+            foreach ($responseData->data->entries as $entry) {
+
+                    if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
+                        $i++;
+                        $displayedevents = 1;
+
+                            $html .= '<p>
+                                <h4 class="book-group-event-title" style="margin-bottom:0;">';
+
+                                if ($entry->featuredImage != null || $entry->eventImage != null) {
+
+                                    $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
+
+                                    //$html .= $entry->title;
+                                    //$html .= $entry->subTitle;
+                                }
+
+                                else {
+                                        if ($entry->title) {
+
+                                        $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
+
+                                        //$html .=  $entry->title;
+                                    }
+                                }
+                                $html .= '
+                                </h4>
+
+                                ';
+                                
+                                $html .= '<h4>' . $entry->subTitle . '</h4>';
+                                
+                                $html .= '
+                                <p class="event-info-date" style="margin:0;">
+                                    ';
+                                    if ($entry->eventStart) {
+                                        $startDate = new DateTime($entry->eventStart);
+                                        $endDate = new DateTime($entry->eventEnd);
+
+                                        $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
+                                        $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
+                                        $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
+                                        $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
+                                        $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
+                                        $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
+                                        $stringtoclean = str_replace(",","", $stringtoclean);
+                                        $stringtoclean = str_replace(":00","", $stringtoclean);
+                                        $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
+                                        $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
+                                        $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
+                                        $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
+                                        $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
+                                        $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
+                                        $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
+                                        $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
+
+                                        $stringtocleancountam = substr_count($stringtoclean, "a.m");
+                                            $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
+
+                                            if ($stringtocleancountam == "2")
+                                            {
+                                                $stringtoclean = str_replace("a.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' a.m.' ;
+                                            }
+
+                                            if ($stringtocleancountpm == "2")
+                                            {
+                                                $stringtoclean = str_replace("p.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' p.m.' ;
+
+                                            }
+
+                                        $html .= $stringtoclean;
+                                    }
+
+                                    if ($entry->locationName) {
+                                        $html .= ' | ' . $entry->locationName;
+                                    }
+                                    $html .= '
+                                </p>
+                                <div>
+                                    <p>
+                                    ';
+                                        $html .=  $entry->shortDescription;
+                                    $html .= '
+                                    </p>
+                                </div>
+                                ';
+                            $html .= '</p>';
+                    endif;
+                }
+                    if ($displayedevents == 0) {
+                        $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+                    }
+            }
+            //print('why i no display stuff');
+
+        }
+
+
+
+             if ($atts['formatstyle'] != "storytime" && $atts['formatstyle'] != "shortDescription" && $atts['formatstyle'] != "calendar" && $atts['formatstyle'] != "subtitle") {
 
 
             $responseData = json_decode($response);
             
 
-            if (empty($responseData)) {
-               $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-           }
-           else {
+             if (empty($responseData)) {
+                $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+            }
+            else {
 
-           foreach ($responseData->data->entries as $entry) {
-                    //if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' and $entry->subTitle !='' ) :
-                   if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
-                       $displayedevents = 1;
-                       $i++;
-                       $html .= '<div class="book-group-event">';
-                            if ($entry->featuredImage != null) {
-                               $html .=  '<div class="book-group-event-image" data-image="featuredImage for ' . $entry->title . '" style="background-image: url(' . $entry->featuredImage . ')"></div>';
-                            }
-                            elseif ($entry->eventImage != null) {
-                               $html .=  '<div class="book-group-event-image" data-image="eventImage for ' . $entry->title . '" style="background-image: url(' . $entry->eventImage . ')"></div></a>';
-                            }
-                            //endif;
-                           $html .= '<div class="book-group-event-info">
-                               <h3 class="book-group-event-title">';
+            foreach ($responseData->data->entries as $entry) {
 
-                               if ($entry->featuredImage != null || $entry->eventImage != null) {
+                    if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
+                        $displayedevents = 1;
+                        $i++;
+                        $html .= '<div class="book-group-event">';
+                             if ($entry->featuredImage != null) {
+                                $html .=  '<div class="book-group-event-image" data-image="featuredImage for ' . $entry->title . '" style="background-image: url(' . $entry->featuredImage . ')"></div>';
+                             }
+                             elseif ($entry->eventImage != null) {
+                                $html .=  '<div class="book-group-event-image" data-image="eventImage for ' . $entry->title . '" style="background-image: url(' . $entry->eventImage . ')"></div></a>';
+                             }
+                             //endif;
+                            $html .= '<div class="book-group-event-info">
+                                <h3 class="book-group-event-title">';
 
-                                   $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->subTitle.'</a>';
+                                if ($entry->featuredImage != null || $entry->eventImage != null) {
 
-                                   //$html .= $entry->title;
-                                   //$html .= $entry->subTitle;
-                               }
+                                    $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
 
-                               else {
-                                       if ($entry->title) {
+                                    //$html .= $entry->title;
+                                    //$html .= $entry->subTitle;
+                                }
 
-                                       $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->subTitle.'</a>';
-
-                                       //$html .=  $entry->title;
-                                   }
-                               }
-                               $html .= '
-                               </h3>
-                               <p class="event-info-date" style="font-weight:bold !important;margin-top:1em;">
-                                   ';
-                                   if ($entry->eventStart) {
-                                       $startDate = new DateTime($entry->eventStart);
-                                       $endDate = new DateTime($entry->eventEnd);
-
-                                       $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
-                                       $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
-                                       $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
-                                       $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
-                                       $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
-                                       $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
-                                       $stringtoclean = str_replace(",","", $stringtoclean);
-                                       $stringtoclean = str_replace(":00","", $stringtoclean);
-                                       $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
-                                       $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
-                                       $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
-                                       $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
-                                       $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
-                                       $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
-                                       $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
-                                       $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
-
-                                       $stringtocleancountam = substr_count($stringtoclean, "a.m");
-                                           $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
-
-                                           if ($stringtocleancountam == "2")
-                                           {
-                                               $stringtoclean = str_replace("a.m.","", $stringtoclean);
-                                               $stringtoclean = $stringtoclean . ' a.m.' ;
-                                           }
-
-                                           if ($stringtocleancountpm == "2")
-                                           {
-                                               $stringtoclean = str_replace("p.m.","", $stringtoclean);
-                                               $stringtoclean = $stringtoclean . ' p.m.' ;
-
-                                           }
-
-                                       $html .= $stringtoclean;
-                                   }
-
-                                   if ($entry->locationName) {
-                                       $html .= ' | ' . $entry->locationName;
-                                   }
-                                   $html .= '
-                               </p>
-                               <div>
-                                    <p class="diffmarginprograms" style="margin-top:-1.25em">
-                                   ';
-                                       $html .=  $entry->shortDescription;
-                                   $html .= '
-                                   </p>
-                               </div>
-                               ';
-                               // new button text for registration limit full so many remaining
-
-                               
-
-
-                               if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                    $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
-                                    $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
-                                } elseif ($entry->thirdPartyRegistration == "true") {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
-                                    }
                                 else {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
-                               }
-                            } else {
-                                $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
-                            }
+                                        if ($entry->title) {
 
+                                        $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$entry->title.'</a>';
 
+                                        //$html .=  $entry->title;
+                                    }
+                                }
+                                $html .= '
+                                </h3>
+                                <h4>
+                                ';
+                     
+                                    $html .=  $entry->subTitle;
+                                
+                                $html .= '
+                                </h4>
+                                <p class="event-info-date">
+                                    ';
+                                    if ($entry->eventStart) {
+                                        $startDate = new DateTime($entry->eventStart);
+                                        $endDate = new DateTime($entry->eventEnd);
 
+                                        $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
+                                        $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
+                                        $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
+                                        $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
+                                        $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
+                                        $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
+                                        $stringtoclean = str_replace(",","", $stringtoclean);
+                                        $stringtoclean = str_replace(":00","", $stringtoclean);
+                                        $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
+                                        $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
+                                        $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
+                                        $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
+                                        $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
+                                        $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
+                                        $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
+                                        $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
 
-                            
-                           $html .= '</div>
-                       </div>
-                   ';   
-                   endif;   
-                   
-                   
-                         
+                                        $stringtocleancountam = substr_count($stringtoclean, "a.m");
+                                            $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
 
-           }
+                                            if ($stringtocleancountam == "2")
+                                            {
+                                                $stringtoclean = str_replace("a.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' a.m.' ;
+                                            }
 
-                   if ($displayedevents == 0) {
-                       $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-                   }
-           
-           
+                                            if ($stringtocleancountpm == "2")
+                                            {
+                                                $stringtoclean = str_replace("p.m.","", $stringtoclean);
+                                                $stringtoclean = $stringtoclean . ' p.m.' ;
 
-           }    
-           //print('why i no display stuff');
+                                            }
 
-       
-      
-       return $html;
+                                        $html .= $stringtoclean;
+                                    }
+
+                                    if ($entry->locationName) {
+                                        $html .= ' | ' . $entry->locationName;
+                                    }
+                                    $html .= '
+                                </p>
+                                <div>
+                                    <p>
+                                    ';
+                                        $html .=  $entry->shortDescription;
+                                    $html .= '
+                                    </p>
+                                </div>
+                                ';
+                                if ($entry->eventRegistrationUrl) {
+                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
+                                }
+                                elseif ($entry->registration == "true") {
+                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
+
+                                }
+                                else {
+                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
+                                }
+                            $html .= '</div>
+                        </div>
+                    ';   
+                    endif;   
+                    
+                    
+                          
+
+            }
+
+                    if ($displayedevents == 0) {
+                        $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+                    }
+            
+            
+
+            }    
+            //print('why i no display stuff');
 
         }
 
-// SEARCH FOR FAIL SAFE //
-
-             if ($atts['formatstyle'] != "storytime" && $atts['formatstyle'] != "shortDescription" && $atts['formatstyle'] != "calendar" && $atts['formatstyle'] != "subtitle" && $atts['formatstyle'] != "imageDescription") {
-
-
-
-                $responseData = json_decode($response);
-            
-
-                if (empty($responseData)) {
-                   $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-               }
-               else {
-    
-               foreach ($responseData->data->entries as $entry) {
-    
-                       if ($entry->modified != 'canceled' and $entry->modified !='rescheduled' ) :
-                           $displayedevents = 1;
-                           $i++;
-                           $modifiedTitle = str_replace($atts['removeText'], '', $entry->title);
-                           $html .= '<div class="book-group-event">';
-    
-                                if ($entry->featuredImage != null) {
-                                   
-                                   $html .=  '<div class="book-group-event-image" data-image="featuredImage for ' . $atts['removeText'] . $modifiedTitle . '" style="background-image: url(' . $entry->featuredImage . ')"></div>';
-                                }
-                                elseif ($entry->eventImage != null) {
-                              
-                                   $html .=  '<div class="book-group-event-image" data-image="eventImage for ' . $atts['removeText'] . $modifiedTitle . '" style="background-image: url(' . $entry->eventImage . ')"></div></a>';
-                                }
-                                //endif;
-                               $html .= '<div class="book-group-event-info">
-                                   <h3 class="book-group-event-title">';
-    
-                                   if ($entry->featuredImage != null || $entry->eventImage != null) {
-    
-                                       $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$modifiedTitle.'</a>';
-    
-                                       //$html .= $entry->title;
-                                       //$html .= $entry->subTitle;
-                                   }
-    
-                                   else {
-                                           if ($entry->title) {
-    
-                                           $html .= '<a href="http://events.toledolibrary.org/event/' . $entry->eventId . '">'.$modifiedTitle.'</a>';
-    
-                                           //$html .=  $entry->title;
-                                       }
-                                   }
-                                   $html .= '
-                                   </h3>';
-                                   if ($entry->subTitle) {
-    
-                                    $html .= '<p class="event-info-date" style="margin-top:-.5em;margin-bottom:-.5em;">';
-                                       $html .=  $entry->subTitle;
-                                    $html .= '</p>';
-                                   
-                                   }
-    
-                                   $html .= '
-                                   
-                                   <p class="event-info-date" style="font-weight:bold !important;margin-top:1em;">
-                                       ';
-                                       if ($entry->eventStart) {
-                                           $startDate = new DateTime($entry->eventStart);
-                                           $endDate = new DateTime($entry->eventEnd);
-    
-                                           $stringtoclean = '' . str_replace('m', '.m.', $startDate->format('l, F j | g:i a')) . ' &mdash; ' . str_replace('m', '.m.',$endDate->format('g:i a')) .'';
-                                           $stringtoclean = str_replace(".M.arch","March", $stringtoclean);
-                                           $stringtoclean = str_replace(".M.ay","May", $stringtoclean);
-                                           $stringtoclean = str_replace("Septe.m.ber","September", $stringtoclean);
-                                           $stringtoclean = str_replace("Nove.m.ber","November", $stringtoclean);
-                                           $stringtoclean = str_replace("Dece.m.ber","December", $stringtoclean);
-                                           $stringtoclean = str_replace(",","", $stringtoclean);
-                                           $stringtoclean = str_replace(":00","", $stringtoclean);
-                                           $stringtoclean = str_replace("Monday","(M)", $stringtoclean);
-                                           $stringtoclean = str_replace("Tuesday","(Tu)", $stringtoclean);
-                                           $stringtoclean = str_replace("Wednesday","(W)", $stringtoclean);
-                                           $stringtoclean = str_replace("Thursday","(Th)", $stringtoclean);
-                                           $stringtoclean = str_replace("Friday","(F)", $stringtoclean);
-                                           $stringtoclean = str_replace("Saturday","(Sa)", $stringtoclean);
-                                           $stringtoclean = str_replace("Sunday","(Su)", $stringtoclean);
-                                           $stringtoclean = str_replace("12 p.m.","noon", $stringtoclean);
-    
-                                           $stringtocleancountam = substr_count($stringtoclean, "a.m");
-                                               $stringtocleancountpm =  substr_count($stringtoclean, "p.m");
-    
-                                               if ($stringtocleancountam == "2")
-                                               {
-                                                   $stringtoclean = str_replace("a.m.","", $stringtoclean);
-                                                   $stringtoclean = $stringtoclean . ' a.m.' ;
-                                               }
-    
-                                               if ($stringtocleancountpm == "2")
-                                               {
-                                                   $stringtoclean = str_replace("p.m.","", $stringtoclean);
-                                                   $stringtoclean = $stringtoclean . ' p.m.' ;
-    
-                                               }
-    
-                                           $html .= $stringtoclean;
-                                       }
-    
-                                       if ($entry->locationName) {
-                                           $html .= ' | ' . $entry->locationName;
-                                       }
-                                       $html .= '
-                                   </p>
-                                   <div>
-                                       <p style="margin-top:-1.25em">
-                                       ';
-                                           $html .=  $entry->shortDescription;
-                                       $html .= '
-                                       </p>
-                                   </div>
-                                   ';
-                                   if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                    if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                        $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                    } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
-                                        $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
-                                    } elseif ($entry->thirdPartyRegistration == "true") {
-                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
-                                        }
-                                    else {
-                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
-                                   }
-                                } else {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
-                                }
-                               $html .= '</div>
-                           </div>
-                       ';   
-                       endif;   
-                       
-                       
-                             
-    
-               }
-    
-                       if ($displayedevents == 0) {
-                           $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
-                       }
-               
-               
-    
-               }    
-               //print('why i no display stuff');
-    
-           
-          
-           return $html;
-    
 
         }
 
 
        
         return $html;
-    }
+
         }
 
     private function getCommunicoDataFromAPI($data) {
         $startDate = date('Y-m-d');
         $endDate = date('Y-m-d', strtotime('+365days'));
-        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate .$data;
+        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,registration,featuredImage,eventImage,searchTags&startDate=' . $startDate . '&endDate=' . $endDate .$data;
         $args = array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->access_token

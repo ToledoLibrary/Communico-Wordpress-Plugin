@@ -11,11 +11,10 @@
                          name: 'formatstyle',
                          label: 'Format Style',
                          values: [
-                            //{text: 'Image and Description', value: 'imageDescription'},
-                            {text: 'Title as title', value: 'shortDescription'},
-                            {text: 'Subtitle as title', value: 'subtitle'},
-                            //{text: 'Calendar', value: 'calendar'},
-                            {text: 'Storytime', value: 'storytime'}
+                            {text: 'Image and Description', value: 'imageDescription'},
+                            {text: 'Storytime', value: 'storytime'},
+                            {text: 'Short Description', value: 'shortDescription'},
+                            {text: 'Calendar', value: 'calendar'}
                          ]},
                         {type: 'listbox',
                          name: 'locationid',
@@ -78,8 +77,7 @@
                             {text: 'Storytime', value: 'Storytime'},
                             {text: 'Wellness', value: 'Wellness'}
                          ]},
-                        {type: 'textbox', name: 'term', label: 'Term'},
-                        {type: 'textbox', name: 'removeText', label: 'Remove Text'}
+                        {type: 'textbox', name: 'term', label: 'Term'}
                     ],
                     onsubmit: function(e) {
 
@@ -88,8 +86,7 @@
         var ages = e.data.ages;
         var types = e.data.types;
         var term = e.data.term;
-        var removeText = e.data.removeText;
-        editor.insertContent('[communico formatstyle="'+ formatstyle +'" locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '" removeText="' + removeText + '"]');
+        editor.insertContent('[communico formatstyle="'+ formatstyle +'" locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '"]');
     }
                 });
             }
