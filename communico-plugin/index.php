@@ -1362,7 +1362,7 @@ class CommunicoDataPuller {
                                    $html .= '
                                </p>
                                <div>
-                                   <p style="margin-top:-1.25em">
+                                   <p class="descriptionshortcommunico">
                                    ';
                                        $html .=  $entry->shortDescription;
                                    $html .= '
@@ -1370,19 +1370,30 @@ class CommunicoDataPuller {
                                </div>
                                ';
                                if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                    $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
+                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == false) {
+                                    $html .= '<a class="woof program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                } elseif ($entry->eventId == "9967180") {
+                                    $html .= '<a class="woof2 program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                } 
+                                elseif ($entry->eventId == "11487421") {
+                                    $html .= '<a class="woof2 program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                } 
+                                elseif ($entry->eventId == "11487318") {
+                                    $html .= '<a class="woof2 program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                } 
+                                elseif ($entry->totalRegistrants >= $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == true) {
+                                    $html .= '<a class="meow program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Full - join waitlist</a>';
+                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 9 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
                                     $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
+                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Register - '. $remainingSeats . ' spots left</a>';
                                 } elseif ($entry->thirdPartyRegistration == "true") {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
+                                    $html .= '<a class="help fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
                                     }
                                 else {
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
+                                    $html .= '<a class="else fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Register</a>';
                                }
                             } else {
-                                $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
+                                $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
                             }
                            $html .= '</div>
                        </div>
@@ -1693,11 +1704,13 @@ if (empty($responseData)) {
 
 
                                if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                    $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
+                                if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == false) {
+                                    $html .= '<a class="woof program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                } elseif ($entry->totalRegistrants >= $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == true) {
+                                    $html .= '<a class="meow program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Full - join waitlist</a>';
+                                } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 9 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
                                     $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
+                                    $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register - '. $remainingSeats . ' spots left</a>';
                                 } elseif ($entry->thirdPartyRegistration == "true") {
                                     $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
                                     }
@@ -1854,12 +1867,16 @@ if (empty($responseData)) {
                                        </p>
                                    </div>
                                    ';
+
+
                                    if ($entry->eventRegistrationUrl || $entry->registration == true) {
-                                    if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false) {
-                                        $html .= '<a class="program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
-                                    } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 10 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
+                                    if ($entry->totalRegistrants == $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == false) {
+                                        $html .= '<a class="woof program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full">FULL</a>';
+                                    } elseif ($entry->totalRegistrants >= $entry->maxAttendees && $entry->thirdPartyRegistration == false && $entry->waitlist == true) {
+                                        $html .= '<a class="meow program-is-full fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type program-is-full" href="https://events.toledolibrary.org/event/' . $entry->eventId . '">Full - join waitlist</a>';
+                                    } elseif (($entry->maxAttendees - $entry->totalRegistrants) <= 9 && ($entry->maxAttendees - $entry->totalRegistrants) > 0) {
                                         $remainingSeats = $entry->maxAttendees - $entry->totalRegistrants;
-                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Only '. $remainingSeats . ' spots left</a>';
+                                        $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Register - '. $remainingSeats . ' spots left</a>';
                                     } elseif ($entry->thirdPartyRegistration == "true") {
                                         $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="'. $entry->eventRegistrationUrl. '">Register</a>';
                                         }
@@ -1869,6 +1886,8 @@ if (empty($responseData)) {
                                 } else {
                                     $html .= '<a class="fusion-button button-flat fusion-button-default-size button-default button-7 fusion-button-default-span fusion-button-default-type" href="http://events.toledolibrary.org/event/' . $entry->eventId . '">Read More</a>';
                                 }
+
+
                                $html .= '</div>
                            </div>
                        ';   
@@ -1904,7 +1923,7 @@ if (empty($responseData)) {
     private function getCommunicoDataFromAPI($data) {
         $startDate = date('Y-m-d');
         $endDate = date('Y-m-d', strtotime('+365days'));
-        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate .$data;
+        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,waitlist,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate .$data;
         $args = array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->access_token
