@@ -1,22 +1,13 @@
 (function() {
-    tinymce.PluginManager.add('communicoButton', function(editor, url) {
-        editor.addButton('communicoButton', {
-            text: 'Communico',
-            icon: '',
+    // Add Communico Button
+    tinymce.PluginManager.add( 'communico_button', function( editor ) {
+        editor.addButton( 'communico_button', {
+            title: 'Communico Button',
+            icon: 'communico',
             onclick: function() {
                 editor.windowManager.open({
                     title: 'Enter Parameters',
                     body: [
-                        {type: 'listbox',
-                         name: 'formatstyle',
-                         label: 'Format Style',
-                         values: [
-                            //{text: 'Image and Description', value: 'imageDescription'},
-                            {text: 'Title as title', value: 'shortDescription'},
-                            {text: 'Subtitle as title', value: 'subtitle'},
-                            //{text: 'Calendar', value: 'calendar'},
-                            {text: 'Storytime', value: 'storytime'}
-                         ]},
                         {type: 'listbox',
                          name: 'locationid',
                          label: 'Location',
@@ -42,7 +33,7 @@
                             {text: 'Washington', value: '432'},
                             {text: 'Waterville', value: '433'},
                             {text: 'West Toledo', value: '434'}
-                         ]},
+                        ]},
                         {type: 'listbox',
                          name: 'ages',
                          label: 'Ages',
@@ -53,8 +44,8 @@
                             {text: 'Teens (11-17)', value: 'Teens%20%2811-17%29'},
                             {text: 'Adults (18+)', value: 'Adults%20%2818%2B%29'},
                             {text: 'All Ages', value: 'All%20Ages'}
-                         ]},
-                         {type: 'listbox',
+                        ]},
+                        {type: 'listbox',
                          name: 'types',
                          label: 'Types',
                          values: [
@@ -77,22 +68,36 @@
                             {text: 'Small Business and Nonprofit', value: 'Small%20Business%20and%20Nonprofit'},
                             {text: 'Storytime', value: 'Storytime'},
                             {text: 'Wellness', value: 'Wellness'}
-                         ]},
+                        ]},
+                        {type: 'listbox',
+                         name: 'daysahead',
+                         label: 'Days Ahead',
+                         values: [
+                            {text: '30', value: '30'},
+                            {text: '60', value: '60'},
+                            {text: '90', value: '90'},
+                            {text: '120', value: '120'},
+                            {text: '180', value: '180'},
+                            {text: '365', value: '365'}
+                        ]},
                         {type: 'textbox', name: 'term', label: 'Term'},
                         {type: 'textbox', name: 'removeText', label: 'Remove Text'}
                     ],
                     onsubmit: function(e) {
 
-        var formatstyle = e.data.formatstyle;
-        var locationid = e.data.locationid;
-        var ages = e.data.ages;
-        var types = e.data.types;
-        var term = e.data.term;
-        var removeText = e.data.removeText;
-        editor.insertContent('[communico formatstyle="'+ formatstyle +'" locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '" removeText="' + removeText + '"]');
-    }
+                var formatstyle = e.data.formatstyle;
+                var locationid = e.data.locationid;
+                var ages = e.data.ages;
+                var types = e.data.types;
+                var term = e.data.term;
+                var removeText = e.data.removeText;
+                var daysahead = e.data.daysahead;
+                
+                editor.insertContent('[communico formatstyle="'+ formatstyle +'" locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '" removeText="' + removeText + '" daysahead="' + daysahead + '"]');
+
+                     }
                 });
             }
         });
-    });
+    }); // **Closing parenthesis added here**
 })();

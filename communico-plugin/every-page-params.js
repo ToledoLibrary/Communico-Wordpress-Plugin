@@ -15,44 +15,46 @@
 
     var data = getParameters();
     getCommunicoData(data).done(function (response) {
-    // Parse the response
-    var responseData = JSON.parse(response);
+        // Parse the response
+        var responseData = JSON.parse(response);
 
-    // Create a container element to hold the event data
-    var container = $('<div>');
+        // Create a container element to hold the event data
+        var container = $('<div>');
 
-    // Iterate over each event and create HTML elements for each piece of data
-    responseData.events.forEach(function(event) {
-        var image = event.featureImage ? event.featureImage : event.eventImage;
-        var title = event.title;
-        var subTitle = event.subTitle;
-        var registrationUrl = event.eventRegistrationUrl;
+        // Iterate over each event and create HTML elements for each piece of data
+        responseData.events.forEach(function(event) {
+            var image = event.featureImage ? event.featureImage : event.eventImage;
+            var title = event.title;
+            var subTitle = event.subTitle;
+            var registrationUrl = event.eventRegistrationUrl;
 
-        // Create HTML elements for each piece of data
-        var eventImage = $('<img>').attr('src', image).attr('alt', 'Event image');
-        var eventTitle = $('<h1>').text(title);
-        var eventSubTitle = $('<h2>').text(subTitle);
-        var eventRegistration = $('<a>').attr('href', registrationUrl).text('Register');
+            // Create HTML elements for each piece of data
+            var eventImage = $('<img>').attr('src', image).attr('alt', 'Event image');
+            var eventTitle = $('<h1>').text(title);
+            var eventSubTitle = $('<h2>').text(subTitle);
+            var eventRegistration = $('<a>').attr('href', registrationUrl).text('Register');
 
-        // Append the HTML elements to the container
-        container.append(eventImage);
-        container.append(eventTitle);
-        container.append(eventSubTitle);
-        container.append(eventRegistration);
+            // Append the HTML elements to the container
+            container.append(eventImage);
+            container.append(eventTitle);
+            container.append(eventSubTitle);
+            container.append(eventRegistration);
+        });
+
+        // Empty the previous event data and append the new container to the body
+        $('#communico-results').empty().append(container);
     });
 
-    // Empty the previous event data and append the new container to the body
-    $('#communico-results').empty().append(container);
-});
-
-    // Get the parameters from the html elements
+    // Get the parameters from the HTML elements
     function getParameters() {
         return {
             formatstyle: $('#formatstyle').val(),
             locationId: $('#locationId').val(),
             ages: $('#ages').val(),
             types: $('#types').val(),
-            term: $('#term').val()
+            term: $('#term').val(),
+            removeText: $('#removeText').val(), // Added removeText parameter
+            daysahead: $('#daysahead').val() // Added daysahead parameter
         };
     }
 

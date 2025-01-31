@@ -42,7 +42,7 @@ class CommunicoDataPuller {
     }
 
     public function addButtonPlugin($plugin_array) {
-        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=12', __FILE__);
+        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=26', __FILE__);
         return $plugin_array;
     }
 
@@ -85,18 +85,23 @@ class CommunicoDataPuller {
 
         add_settings_field('communico_client_id', 'Client ID', function() {
             $client_id = get_option('communico_client_id');
-            $html .= '<input type="text" name="communico_client_id" value="' . $client_id . '" />';
+            $html = '<input type="text" name="communico_client_id" value="' . $client_id . '" />';
+            echo $html;
         }, 'communico-setting-admin', 'communico_setting_section');
 
         add_settings_field('communico_client_secret', 'Client Secret', function() {
             $client_secret = get_option('communico_client_secret');
-            $html .= '<input type="text" name="communico_client_secret" value="' . $client_secret . '" />';
+            $html = '<input type="text" name="communico_client_secret" value="' . $client_secret . '" />';
+            echo $html;
         }, 'communico-setting-admin', 'communico_setting_section');
     }
 
 
     private function getAccessToken() {
         $url = "https://api.communico.co/v3/token";
+
+        error_log("getAccessToken: Request URL: " . $url); // Log the request URL
+    
         $args = array(
             'method' => 'POST',
             'headers' => array(
@@ -109,12 +114,18 @@ class CommunicoDataPuller {
             ),
         );
 
+        error_log("getAccessToken: Request Args: " . print_r($args, true)); // Log the request arguments
+
         $response = wp_remote_request($url, $args);
+
+        error_log("getAccessToken: Response: " . print_r($response, true)); // Log the raw response
 
         if (!is_wp_error($response)) {
             $body = json_decode(wp_remote_retrieve_body($response));
             return $body->access_token;
         }
+
+        error_log("getAccessToken: Returning Access Token: " . $this->access_token);
 
         return null;
     }
@@ -123,7 +134,8 @@ class CommunicoDataPuller {
         $url = "https://api.communico.co/v3/attend/events";
         $args = array(
             'headers' => array(
-                'Authorization' => 'Bearer ' . $this->access_token
+                'Authorization' => 'Bearer ' . $this->access_token,
+                'Content-Type'  => 'application/json',
             )
         );
 
@@ -137,14 +149,49 @@ class CommunicoDataPuller {
     }
 
     public function renderCommunicoShortcode($atts) {
+        $html = '';
         $atts = shortcode_atts(array(
             'formatstyle' => '',
             'locationid' => '',
             'ages' => '',
             'types' => '',
             'term' => '',
-            'removeText' => ''
+            'removeText' => '',
+            'daysahead' => ''
         ), $atts);
+
+        // Conditionally build the $data string, only adding parameters that have values
+        $data = '';
+        $daysAheadValue = intval($atts['daysahead']); // Get daysahead as integer, 0 if not set or invalid
+
+        foreach ($atts as $key => $value) {
+            if (!empty($value) && $key !== 'daysahead' && $key !== 'formatstyle' ) {  // Exclude daysahead and formatstyle here
+                $data .= '&' . $key . '=' . $value;
+            }
+        }
+    
+    
+        if (!empty($data)) {
+            $data = ltrim($data, '&');
+        }
+    
+        $endDate = new DateTime();  // Get current date and time
+        if ($daysAheadValue > 0) {   // Use daysahead if it is a valid integer
+            $endDate->add(new DateInterval('P' . $daysAheadValue . 'D'));
+        } else {
+            $endDate->add(new DateInterval('P365D')); // Default to 365 days if daysahead is missing/invalid
+        }
+        $data .= ($data ? '&' : '') . 'endDate=' . $endDate->format('Y-m-d');
+    
+    
+        if (!empty($atts['formatstyle'])) {
+                $data .= ($data ? '&' : '') . 'formatstyle=' . $atts['formatstyle'];
+        }
+    
+        $response = $this->getCommunicoDataFromAPI($data);
+
+        // Remove the leading '&' if $data is not empty
+        $data = ltrim($data, '&');
 
         $i = 0;
 
@@ -154,16 +201,23 @@ class CommunicoDataPuller {
         if ($atts['types'] ) { $data .= '&types=' . $atts['types'];}
         if ($atts['term'] ) { $data .= '&term=' . $atts['term'];}
         if ($atts['removeText'] ) { $data .= '&removeText=' . $atts['removeText'];}
+        if ($atts['daysahead'] ) { $data .= '&daysahead=' . $atts['daysahead'];}
 
         $response = $this->getCommunicoDataFromAPI($data);
 
+        error_log("renderCommunicoShortcode: Shortcode attributes: " . print_r($atts, true));
+        error_log("renderCommunicoShortcode: Data string: " . $data);
+        error_log("renderCommunicoShortcode: Response from API: " . print_r($response, true)); // Use print_r for $response
+
         //$html .= $response;
 
-        if (empty($response)) {
+        if (empty($response) || is_wp_error($response)) { // Check for empty or WP_Error
             $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+            error_log("renderCommunicoShortcode: API request failed or returned empty result.");
         }
 
         else {
+            $responseData = json_decode($response);
 
             if ($atts['formatstyle'] == "storytime") {
 
@@ -171,6 +225,7 @@ class CommunicoDataPuller {
 
              if (empty($responseData)) {
                 $html = 'We currently do not have any programs scheduled at this time. Please check back soon.';
+                error_log("renderCommunicoShortcode: Could not parse JSON response. Error: " . json_last_error_msg());
             }
 
              foreach ($responseData->data->entries as $theEvent) {
@@ -221,8 +276,6 @@ class CommunicoDataPuller {
                 }
 
             $html .= $stringtoclean;
-
-
 
             $html .= "</div>";
 
@@ -1923,7 +1976,10 @@ if (empty($responseData)) {
     private function getCommunicoDataFromAPI($data) {
         $startDate = date('Y-m-d');
         $endDate = date('Y-m-d', strtotime('+365days'));
-        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,waitlist,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate .$data;
+        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,waitlist,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate . $data;
+
+        error_log("getCommunicoDataFromAPI: Request URL: " . $url); // Log the request URL
+
         $args = array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->access_token
@@ -1931,17 +1987,19 @@ if (empty($responseData)) {
             //'param' => $data
         );
 
-        //print_r($url);
-        //print_r($args);
-
         $response = wp_remote_get($url, $args);
+        $body = wp_remote_retrieve_body($response);
 
-        //print_r($response);
+        error_log("getCommunicoDataFromAPI: Request URL: " . $url);
+        error_log("getCommunicoDataFromAPI: Request Args: " . print_r($args, true));
+        error_log("getCommunicoDataFromAPI: Raw Response: " . print_r($response, true));
+        error_log("getCommunicoDataFromAPI: Response Body: " . $body);
 
         if (!is_wp_error($response)) {
             return wp_remote_retrieve_body($response);
-            //return $response;
         }
+
+        error_log("getCommunicoDataFromAPI: WP Error: " . print_r($response, true)); // Log WP_Error if any
 
         return null;
     }

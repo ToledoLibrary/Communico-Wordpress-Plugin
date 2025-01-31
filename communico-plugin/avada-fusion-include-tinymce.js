@@ -93,15 +93,34 @@ tinymce.PluginManager.add( 'communico_button', function( editor ) {
                   {text: 'Storytime', value: 'Storytime'},
                   {text: 'Wellness', value: 'Wellness'}
                  ]},
-                {type: 'textbox', name: 'term', label: 'Term'}
-              ],
-              onsubmit: function(e) {
-        var locationid = e.data.locationid;
-        var ages = e.data.ages;
-        var types = e.data.types;
-        var term = e.data.term;
-        editor.insertContent('[communico locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '"]');
-      }
+                 {type: 'listbox',
+                  name: 'daysahead',
+                  label: 'Days Ahead',
+                  values: [
+                     {text: '30', value: '30'},
+                     {text: '60', value: '60'},
+                     {text: '90', value: '90'},
+                     {text: '120', value: '120'},
+                     {text: '180', value: '180'},
+                     {text: '365', value: '365'}
+                 ]},
+                 {type: 'textbox', name: 'term', label: 'Term'},
+                 {type: 'textbox', name: 'removeText', label: 'Remove Text'}
+             ],
+             onsubmit: function(e) {
+
+         var formatstyle = e.data.formatstyle;
+         var locationid = e.data.locationid;
+         var ages = e.data.ages;
+         var types = e.data.types;
+         var term = e.data.term;
+         var removeText = e.data.removeText;
+         var daysahead = e.data.daysahead;
+         
+         editor.insertContent('[communico formatstyle="'+ formatstyle +'" locationid="' + locationid + '" ages="' + ages + '" types="' + types + '" term="' + term + '" removeText="' + removeText + '" daysahead="' + daysahead + '"]');
+
+              }
+              
             });
 
     }

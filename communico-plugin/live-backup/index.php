@@ -85,15 +85,16 @@ class CommunicoDataPuller {
 
         add_settings_field('communico_client_id', 'Client ID', function() {
             $client_id = get_option('communico_client_id');
-            $html .= '<input type="text" name="communico_client_id" value="' . $client_id . '" />';
+            $html = '<input type="text" name="communico_client_id" value="' . $client_id . '" />';
+            echo $html;
         }, 'communico-setting-admin', 'communico_setting_section');
 
         add_settings_field('communico_client_secret', 'Client Secret', function() {
             $client_secret = get_option('communico_client_secret');
-            $html .= '<input type="text" name="communico_client_secret" value="' . $client_secret . '" />';
+            $html = '<input type="text" name="communico_client_secret" value="' . $client_secret . '" />';
+            echo $html;
         }, 'communico-setting-admin', 'communico_setting_section');
     }
-
 
     private function getAccessToken() {
         $url = "https://api.communico.co/v3/token";
