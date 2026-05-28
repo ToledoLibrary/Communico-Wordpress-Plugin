@@ -42,7 +42,7 @@ class CommunicoDataPuller {
     }
 
     public function addButtonPlugin($plugin_array) {
-        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=26', __FILE__);
+        $plugin_array['communicoButton'] = plugins_url('/js/communico-button.js?v=27', __FILE__);
         return $plugin_array;
     }
 
@@ -160,50 +160,10 @@ class CommunicoDataPuller {
             'daysahead' => ''
         ), $atts);
 
-        // Conditionally build the $data string, only adding parameters that have values
-        $data = '';
-        $daysAheadValue = intval($atts['daysahead']); // Get daysahead as integer, 0 if not set or invalid
-
-        foreach ($atts as $key => $value) {
-            if (!empty($value) && $key !== 'daysahead' && $key !== 'formatstyle' ) {  // Exclude daysahead and formatstyle here
-                $data .= '&' . $key . '=' . $value;
-            }
-        }
-    
-    
-        if (!empty($data)) {
-            $data = ltrim($data, '&');
-        }
-    
-        $endDate = new DateTime();  // Get current date and time
-        if ($daysAheadValue > 0) {   // Use daysahead if it is a valid integer
-            $endDate->add(new DateInterval('P' . $daysAheadValue . 'D'));
-        } else {
-            $endDate->add(new DateInterval('P365D')); // Default to 365 days if daysahead is missing/invalid
-        }
-        $data .= ($data ? '&' : '') . 'endDate=' . $endDate->format('Y-m-d');
-    
-    
-        if (!empty($atts['formatstyle'])) {
-                $data .= ($data ? '&' : '') . 'formatstyle=' . $atts['formatstyle'];
-        }
-    
+        $data = $this->buildCommunicoDataQuery($atts);
         $response = $this->getCommunicoDataFromAPI($data);
-
-        // Remove the leading '&' if $data is not empty
-        $data = ltrim($data, '&');
 
         $i = 0;
-
-        if ($atts['formatstyle'] ) { $data .= '&formatstyle=' . $atts['formatstyle'];}
-        if ($atts['locationid'] ) { $data .= '&locationId=' . $atts['locationid'];}
-        if ($atts['ages'] ) { $data .= '&ages=' . $atts['ages'];}
-        if ($atts['types'] ) { $data .= '&types=' . $atts['types'];}
-        if ($atts['term'] ) { $data .= '&term=' . $atts['term'];}
-        if ($atts['removeText'] ) { $data .= '&removeText=' . $atts['removeText'];}
-        if ($atts['daysahead'] ) { $data .= '&daysahead=' . $atts['daysahead'];}
-
-        $response = $this->getCommunicoDataFromAPI($data);
 
         error_log("renderCommunicoShortcode: Shortcode attributes: " . print_r($atts, true));
         error_log("renderCommunicoShortcode: Data string: " . $data);
@@ -1973,10 +1933,55 @@ if (empty($responseData)) {
     }
         }
 
+
+    private function buildCommunicoDataQuery($atts) {
+        $queryParts = array();
+
+        $this->addQueryValue($queryParts, 'formatstyle', $atts['formatstyle']);
+        $this->addQueryValue($queryParts, 'locationId', $atts['locationid']);
+        $this->addQueryValue($queryParts, 'ages', $atts['ages'], true);
+        $this->addQueryValue($queryParts, 'types', $atts['types'], true);
+        $this->addQueryValue($queryParts, 'term', $atts['term']);
+        $this->addQueryValue($queryParts, 'removeText', $atts['removeText']);
+
+        $daysAheadValue = intval($atts['daysahead']);
+        $endDate = new DateTime();
+        if ($daysAheadValue > 0) {
+            $endDate->add(new DateInterval('P' . $daysAheadValue . 'D'));
+        } else {
+            $endDate->add(new DateInterval('P365D'));
+        }
+
+        $this->addQueryValue($queryParts, 'endDate', $endDate->format('Y-m-d'));
+
+        return empty($queryParts) ? '' : '&' . implode('&', $queryParts);
+    }
+
+    private function addQueryValue(&$queryParts, $key, $value, $allowMultiple = false) {
+        if ($value === null || $value === '') {
+            return;
+        }
+
+        $values = $allowMultiple ? preg_split('/\s*(?:,|\|)\s*/', $value) : array($value);
+
+        foreach ($values as $singleValue) {
+            $singleValue = trim($singleValue);
+            if ($singleValue === '') {
+                continue;
+            }
+
+            $queryParts[] = rawurlencode($key) . '=' . rawurlencode(rawurldecode($singleValue));
+        }
+    }
+
     private function getCommunicoDataFromAPI($data) {
         $startDate = date('Y-m-d');
         $endDate = date('Y-m-d', strtotime('+365days'));
-        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,waitlist,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate . '&endDate=' . $endDate . $data;
+        $url = 'https://api.communico.co/v3/attend/events?limit=1500&status=published&privateEvents=false&fields=eventType,types,ages,reportingCategory,eventRegistrationUrl,waitlist,registration,featuredImage,eventImage,searchTags,totalRegistrants,maxAttendees,thirdPartyRegistration&startDate=' . $startDate;
+        if (strpos($data, 'endDate=') === false) {
+            $url .= '&endDate=' . $endDate;
+        }
+        $url .= $data;
 
         error_log("getCommunicoDataFromAPI: Request URL: " . $url); // Log the request URL
 
